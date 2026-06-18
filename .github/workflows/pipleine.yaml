@@ -41,4 +41,4 @@ jobs:
           key: ${{ secrets.EC2_ACCESS_KEY }}
           script: |
             docker pull 653492891194.dkr.ecr.ap-northeast-1.amazonaws.com/coursera_tuts/ci_pipeline:latest
-            docker-compose -f ~/docker-compose.yml up -d
+            docker compose up -d
