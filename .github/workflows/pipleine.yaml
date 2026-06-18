@@ -1,0 +1,16 @@
+name: CD/CI pipeline
+
+
+on:
+  push:
+    branches:
+      - main  
+  workflow dispatch:
+jobs:
+  build: 
+    runs-on: ubuntu-linux
+    steps:
+      -name: Check the code
+        uses: checkout@v4
+      -name: Build Docker image
+        uses: Docker Build -t spring-boot-app:latest
