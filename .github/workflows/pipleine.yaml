@@ -5,12 +5,12 @@ on:
   push:
     branches:
       - main  
-  workflow dispatch:
+  workflow_dispatch:
 jobs:
   build: 
-    runs-on: ubuntu-linux
+    runs-on: ubuntu-latest
     steps:
-      -name: Check the code
-        uses: actions/checkout@latest
-      -name: Build Docker image
-        uses: Docker Build -t spring-boot-app:latest
+      - name: Check the code
+          uses: actions/checkout@latest
+      - name: Build Docker image
+          uses: Docker Build -t spring-boot-app:latest
