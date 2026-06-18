@@ -6,10 +6,24 @@ on:
       - main
   workflow_dispatch:
 jobs:
-  build:
+  docker-build-push:
     runs-on: ubuntu-latest
     steps:
-      - name: Check the code
+      - name: Check code
         uses: actions/checkout@v4
+      - name: Configure AWS Creds
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{secrets.AWS_ACCESS_KEY}}
+          aws-secret-access-key: ${{secrets.AWS_SECRET_KEY}}
+          aws-region: ${{secrets.AWS_REGION}}
+      - name: AWS ECR Login
+        uses: aws-actions/amazon-ecr-login@v1
+
       - name: Build Docker image
-        run: docker build -t spring-boot-app:latest .
+        run: |
+          docker build -t ${{ secrets.ECR_REPO_URL }}:latest .
+
+      - name: Push Docker image to ECR
+        run: |
+          docker push ${{ secrets.ECR_REPO_URL }}:latest
