@@ -1,29 +1,44 @@
-name: CD/CI pipeline
+name: cicd pipeline
 
 on:
   push:
     branches:
       - main
   workflow_dispatch:
+
 jobs:
-  docker-build-push:
+  build_and_push:
     runs-on: ubuntu-latest
     steps:
-      - name: Check code
-        uses: actions/checkout@v4
-      - name: Configure AWS Creds
-        uses: aws-actions/configure-aws-credentials@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{secrets.AWS_ACCESS_KEY}}
-          aws-secret-access-key: ${{secrets.AWS_SECRET_KEY}}
-          aws-region: ${{secrets.AWS_REGION}}
-      - name: AWS ECR Login
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Build Docker image
+      - name: Build, tag, and push Docker image
         run: |
-          docker build -t ${{ secrets.ECR_REPO_URL }}:latest .
+          docker build -t 653492891194.dkr.ecr.ap-northeast-1.amazonaws.com/coursera_tuts/ci_pipeline:latest .
+          docker push 653492891194.dkr.ecr.ap-northeast-1.amazonaws.com/coursera_tuts/ci_pipeline:latest
 
-      - name: Push Docker image to ECR
-        run: |
-          docker push ${{ secrets.ECR_REPO_URL }}:latest
+  deploy:
+    needs: build_and_push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to EC2 instance
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.EC2_IP_ADDRESS }}
+          username: ubuntu
+          key: ${{ secrets.EC2_ACCESS_KEY }}
+          script: |
+            docker pull 653492891194.dkr.ecr.ap-northeast-1.amazonaws.com/coursera_tuts/ci_pipeline:latest
+            docker-compose -f ~/docker-compose.yml up -d
