@@ -11,6 +11,6 @@ jobs:
     runs-on: ubuntu-linux
     steps:
       -name: Check the code
-        uses: actions/checkout@v4
+        uses: actions/checkout@latest
       -name: Build Docker image
         uses: Docker Build -t spring-boot-app:latest
