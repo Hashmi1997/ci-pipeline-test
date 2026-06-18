@@ -12,4 +12,4 @@ jobs:
       - name: Check the code
         uses: actions/checkout@v4
       - name: Build Docker image
-        run: docker build -t spring-boot-app:latest
+        run: docker build -t spring-boot-app:latest .
